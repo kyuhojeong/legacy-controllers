@@ -207,17 +207,19 @@ class GvpnUdpServer(UdpServer):
                 #|     42       | Payload (Ethernet frame)                     |
                 #|-------------------------------------------------------------|
                 elif data[1] == tincan_packet:
- 
                     # Ignore IPv6 packets for log readability. Most of them are
                     # Multicast DNS packets
                     if data[54:56] == "\x86\xdd":
                         continue
+
                     logging.debug("IP packet forwarded \nversion:{0}\nmsg_type:"
                         "{1}\nsrc_uid:{2}\ndest_uid:{3}\nsrc_mac:{4}\ndst_mac:{"
-                        "5}\neth_type:{6}".format(data[0].encode("hex"), \
+                        "5}\neth_type:{6}\nsrc_ipv4:{7}\ndst_ipv4:{8}".format(
+                        data[0].encode("hex"), \
                         data[1].encode("hex"), data[2:22].encode("hex"), \
                         data[22:42].encode("hex"), data[42:48].encode("hex"),\
-                        data[48:54].encode("hex"), data[54:56].encode("hex")))
+                        data[48:54].encode("hex"), data[54:56].encode("hex"),\
+                        ip4_b2a(data[68:72]), ip4_b2a(data[72:76])))
  
                     if not CONFIG["on-demand_connection"]:
                         continue

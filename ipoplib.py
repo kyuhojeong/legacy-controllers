@@ -61,15 +61,20 @@ CONFIG = {
 
 IP_MAP = {}
 
-ipop_ver = "\x02"
+ipop_ver = "\x03"
 tincan_control = "\x01"
 tincan_packet = "\x02"
+icc_control = "\x03"
+icc_packet = "\x04"
 tincan_sr6 = "\x03"
 tincan_sr6_end = "\x04"
 null_uid = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 null_uid += "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 bc_mac = "\xff\xff\xff\xff\xff\xff"
 null_mac = "\x00\x00\x00\x00\x00\x00"
+icc_mac_control = "\x00\x69\x70\x6f\x70\x03"
+icc_mac_packet = "\x00\x69\x70\x6f\x70\x04"
+icc_ethernet_padding = "\x00\x00\x00\x00\x00\x00\x00\x00"
 
 # PKTDUMP mode is for more detailed than debug logging, especially for dump
 # packet contents in hexadecimal to log
@@ -100,6 +105,21 @@ signal.signal(signal.SIGINT, exit_handler)
 # signal.signal(signal.SIGKILL, exit_handler)
 # signal.signal(signal.SIGQUIT, exit_handler)
 signal.signal(signal.SIGTERM, exit_handler)
+
+def do_send_icc_msg(sock, src_uid, dst_uid, icc_type, msg):
+    if socket.has_ipv6:
+        dest = (CONFIG["localhost6"], CONFIG["svpn_port"])
+    else:
+        dest = (CONFIG["localhost"], CONFIG["svpn_port"])
+    if icc_type == "control":
+        return sock.sendto(ipop_ver + icc_control + uid_a2b(src_uid) +\
+          uid_a2b(dst_uid) + icc_mac_control + icc_ethernet_padding +\
+          json.dumps(msg), dest)
+    elif icc_type == "packet":
+        return sock.sendto(ipop_ver + icc_packet + uid_a2b(src_uid) +\
+          uid_a2b(dst_uid) + icc_mac_packet + icc_ethernet_padding +\
+          json.dumps(msg), dest)
+
 
 def pktdump(message, dump=None, *args, **argv):
     hext = ""
