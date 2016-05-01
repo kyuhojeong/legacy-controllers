@@ -230,8 +230,8 @@ def make_arp(src_uid=null_uid, dest_uid=null_uid, dest_mac=bc_mac,\
     arp_msg += target_ip4
     return arp_msg
 
-def do_send_msg(sock, method, overlay_id, uid, data):
-    return make_call(sock, m=method, overlay_id=overlay_id, uid=uid, data=data)
+def do_send_msg(sock, method, overlay_id, uid, data, ipv4):
+    return make_call(sock, m=method, overlay_id=overlay_id, uid=uid, data=data + ipv4)
 
 def do_set_cb_endpoint(sock, addr):
     return make_call(sock, m="set_cb_endpoint", ip=addr[0], port=addr[1])
@@ -292,6 +292,7 @@ class UdpServer(object):
         self.peers_ip6 = {}
         self.far_peers = {}
         self.conn_stat = {}
+        self.ip4 = ip4;
         if socket.has_ipv6:
             self.sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
             self.sock_svr = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
@@ -323,7 +324,7 @@ class UdpServer(object):
         if "fpr" not in peer and peer["xmpp_time"] < CONFIG["wait_time"] * 8:
             self.conn_stat[peer["uid"]] = "req_sent"
             do_send_msg(self.sock, "con_req", 1, peer["uid"],
-                        self.ipop_state["_fpr"]);
+                        self.ipop_state["_fpr"], self.ip4);
 
     def check_collision(self, msg_type, uid):
         if msg_type == "con_req" and \

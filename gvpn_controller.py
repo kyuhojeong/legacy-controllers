@@ -10,7 +10,8 @@ class GvpnUdpServer(UdpServer):
         self.password = password
         self.host = host
         self.ip4 = ip4
-        self.uid = gen_uid(ip4)
+        #self.uid = gen_uid(ip4)
+        self.uid = uid = binascii.b2a_hex(os.urandom(20))
         self.vpn_type = "GroupVPN"
         self.ctrl_conn_init()
 
@@ -171,16 +172,20 @@ class GvpnUdpServer(UdpServer):
                                 continue
                             fpr_len = len(self.ipop_state["_fpr"])
                             fpr = msg["data"][:fpr_len]
-                            cas = msg["data"][fpr_len + 1:]
-                            ip4 = self.uid_ip_table[msg["uid"]]
+                            cas = ""
+                            #cas = msg["data"][fpr_len + 1:]
+                            #ip4 = self.uid_ip_table[msg["uid"]]
+                            ip4 = msg["data"][fpr_len + 1:]
                             self.create_connection(msg["uid"], fpr, 1, 
                                                    CONFIG["sec"], cas, ip4)
                     elif msg_type == "con_resp":
                         if self.check_collision(msg_type, msg["uid"]): continue
                         fpr_len = len(self.ipop_state["_fpr"])
                         fpr = msg["data"][:fpr_len]
-                        cas = msg["data"][fpr_len + 1:]
-                        ip4 = self.uid_ip_table[msg["uid"]]
+                        temp = msg["data"][fpr_len + 1:].split('~')
+                        cas = temp[0]
+                        ip4 = temp[1]
+                        #ip4 = self.uid_ip_table[msg["uid"]]
                         self.create_connection(msg["uid"], fpr, 1, 
                                                CONFIG["sec"], cas, ip4)
     
