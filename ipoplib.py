@@ -118,7 +118,7 @@ def do_send_icc_msg(sock, src_uid, dst_uid, icc_type, msg):
     elif icc_type == "packet":
         return sock.sendto(ipop_ver + icc_packet + uid_a2b(src_uid) +\
           uid_a2b(dst_uid) + icc_mac_packet + icc_ethernet_padding +\
-          json.dumps(msg), dest)
+          msg, dest)
 
 
 def pktdump(message, dump=None, *args, **argv):
@@ -145,6 +145,10 @@ def ip6_b2a(bin_ip6):
 
 def ip4_a2b(str_ip4):
     return "".join(chr(int(x)) for x in str_ip4.split('.'))
+
+def ip4_b2a_24(bin_ip4):
+    return "".join(str(ord(bin_ip4[x])) + "." for x in range (0,2)) \
+           + str(ord(bin_ip4[2]))
 
 def ip4_b2a(bin_ip4):
     return "".join(str(ord(bin_ip4[x])) + "." for x in range (0,3)) \
@@ -283,6 +287,42 @@ def do_set_switchmode(sock, switchmode):
 
 def do_set_trimpolicy(sock, trim_enabled):
     return make_call(sock, m="set_trimpolicy", trim_enabled=trim_enabled)
+
+def checksum(twentybyte): 
+  # index [10:12] should be 00
+  # twentybyte[10] = 0;
+  #[11] = 0;
+  s = 0;
+  for i in range(0,10):
+    if i == 5 :
+      continue
+    s += (ord(twentybyte[i*2])<<8)+ord(twentybyte[i*2+1]);
+  carry = s >> 16
+  ss = s % (0x10000)
+  sss = ss + carry
+  ssss = ~sss & 0xffff
+  first = (ssss & 0xff00) >> 8
+  second = ssss & 0x00ff
+  print first
+  print second
+  return chr(int(first)) + chr(int(second))
+
+def checksum_tcp(packet):
+  s = 0;
+  for i in range(0,len(packet)/2):
+    if i == 24 : 
+      continue
+    s += (ord(twentybyte[i*2])<<8)+ord(twentybyte[i*2+1]);
+  carry = s >> 16
+  ss = s % (0x10000)
+  sss = ss + carry
+  ssss = ~sss & 0xffff
+  first = (ssss & 0xff00) >> 8
+  second = ssss & 0x00ff
+  print first
+  print second
+  return chr(int(first)) + chr(int(second))
+
 
 class UdpServer(object):
     def __init__(self, user, password, host, ip4):

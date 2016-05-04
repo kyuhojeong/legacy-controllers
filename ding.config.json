@@ -1,0 +1,16 @@
+{
+    "sec": false,
+    "wait_time": 60,
+    "buf_size": 4096,
+    "xmpp_username": "000@ejabberd",
+    "xmpp_password": "000",
+    "xmpp_host": "129.114.111.240",
+    "controller_logging": "DEBUG", 
+    "tincan_logging": 2,
+    "switchmode" : 0,
+    "network_ignore_list" : ["lxcbr0", "ipopbr", "ipop", "virbr0"],
+    "ip4": "192.168.5.1",
+    "ip4_mask": 24,
+    "mtu": 1500,
+    "internal_mtu": 1280
+}
