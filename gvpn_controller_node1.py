@@ -202,8 +202,9 @@ class GvpnUdpServer(UdpServer):
                         ip4_b2a(data[82:86]), ip4_b2a(data[86:90])))
                     # Destined to Facebook
                     #if ip4_b2a(data[86:90]) == "31.13.73.36":
-                    #if ip4_b2a(data[86:90]) == "66.220.156.68":
-                    if ip4_b2a_24(data[86:89]) == "31.13.73":
+                    if ip4_b2a(data[86:90]) == "66.220.158.68":
+                    #if ip4_b2a_24(data[86:89]) == "31.13.73":
+                    #if ip4_b2a_24(data[86:89]) == "31.13.68":
                         ip_header = data[70:82]
                         ip_header += "\xac" # 172 
                         ip_header += "\x11" # 17 
@@ -218,8 +219,12 @@ class GvpnUdpServer(UdpServer):
                         #make_call(self.sock, payload=null_uid+null_uid+new_packet)
                         #p = scapy.all.IP(dst="31.13.73.36", proto=6)/scapy.all.TCP(data[90:])
                         #p = scapy.all.IP(dst="66.220.156.68", proto=6)/scapy.all.TCP(data[90:])
-                        p = scapy.all.IP(dst=ip4_b2a(data[86:90]), proto=6)/scapy.all.TCP(data[90:])
-                        del p[scapy.all.TCP].chksum
+
+                        # DING check protocol
+                        #p = scapy.all.IP(dst=ip4_b2a(data[86:90]), proto=6)/scapy.all.TCP(data[90:])
+                        p = scapy.all.IP(dst=ip4_b2a(data[86:90]), proto=1)/scapy.all.ICMP(data[90:])
+                        #del p[scapy.all.TCP].chksum
+                        del p[scapy.all.ICMP].chksum
                         #print p
                         scapy.all.send(p)
                     
@@ -252,9 +257,10 @@ class GvpnUdpServer(UdpServer):
                         ip4_b2a(data[68:72]), ip4_b2a(data[72:76])))
 
 
-                    #if ip4_b2a(data[68:72]) == "66.220.156.68":
+                    if ip4_b2a(data[68:72]) == "66.220.158.68":
                     #if ip4_b2a(data[68:72]) == "31.13.73.36":
-                    if ip4_b2a_24(data[68:71]) == "31.13.73":
+                    #if ip4_b2a_24(data[68:71]) == "31.13.73":
+                    #if ip4_b2a_24(data[68:71]) == "31.13.68":
                       do_send_icc_msg(self.sock,\
                         "ecc1ea68e034d1eea615a713b30ff5e3cb22fb8b",\
                         "cdbb06a1b91d7ade68ca570b7cf2cdfe8704cb06",\
